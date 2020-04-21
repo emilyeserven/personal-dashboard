@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <META HTTP-EQUIV="refresh" CONTENT="300">
+    <title>Document</title>
+    <style>
+        .weather-table {
+            width: 100%;
+            border-top:10px #fff solid;
+        }
+        .weather-table th {
+            border-top:10px #000 solid;;
+        }
+        .weather-table h1 {
+            padding: 8px 0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        .time-block {
+            width:100%;
+            display:block;
+        }
+        .time-header {
+            width:25%;
+            float:left;
+            display:inline-block;
+            text-align:center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .time-block {
+            background-color:#000;
+            color: #fff;
+            width:100%;
+            display:block;
+        }
+        .time-hour {
+            background-color:#000;
+            width:50%;
+            float:left;
+            display:inline-block;
+            text-align:center;
+        }
+        .time-hour h3 {
+            font-size:90px;
+            margin: 0;
+        }
+        .time-date {
+            background-color:#333;
+            width:50%;
+            float:right;
+            display:inline-block;
+        }
+        .time-date h3 {
+            padding-left: 20px;
+            font-size: 100px;
+            margin: 0;
+        }
+        .time-date h4 {
+            font-size: 40px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="time-block">
+        <div class="time-hour">
+            <h3 id="hour">HOUR</h3> <!-- TODO: Make this actually change so a refresh isn't needed. Add "Last Refresh" to page bottom. -->
+            <p style="margin-bottom: 0;">(Sort of.)</p>
+        </div>
+        <div class="time-date">
+            <h3 id="mon-day">MONTH/DAY</h3>
+        </div>
+    </div>
+    <table class="weather-table">
+        <tr>
+            <th colspan="2"><h1>Weather</h1></th>
+        </tr>
+        <tr>
+            <td>
+                <h2>Stamford</h2>
+                <h3>Today</h3>
+                <p><span id="temp">??</span><sup>o</sup>F</p>
+                <p><b><span id="condMain">??</span></b>, <span id="condSub">??</span></p>
+            </td>
+            <td>
+                <h3>Tomorrow</h3>
+                <p><span id="tempTomorrow">??</span><sup>o</sup>F</p>
+                <p><b><span id="condMainTomorrow">??</span></b>, <span id="condSubTomorrow">??</span></p>
+            </td>
+            <!--
+            <td>
+                <h2>New York</h2>
+                <p>Smelly</p>
+            </td>
+            -->
+        </tr>
+    </table>
+    
+    <h1>Today's Task List</h1>
+    <div id="task-list"></div>
+    <div class="task-container">
+        <div class="task-item">
+            <h3>Title</h3>
+            <p>Due: 
+        </div>
+    </div>
+    <p>Testing: <span id="test">???</span></p>
+    <p>Time: <span id="time">???</span></p>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+<script>
+    
+    // For the "Testing"
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+        var response = xhttp.responseText;
+        //console.log(response);
+        var parsedResponse = JSON.parse(response);
+        //console.log(parsedResponse);
+        var answer = parsedResponse.name;
+        //console.log(answer);
+        document.getElementById("test").innerHTML = answer;
+        }
+    };
+    xhttp.open("GET", "https://pokeapi.co/api/v2/pokemon/ditto/", true);
+    xhttp.send();
+    
+    // For Today's temperature
+    var xhttpTemp = new XMLHttpRequest();
+    xhttpTemp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+        // Typical action to be performed when the document is ready:
+        var response = xhttpTemp.responseText;
+        //console.log(response);
+        var parsedResponse = JSON.parse(response);
+        //console.log(parsedResponse);
+        var tempAnswer = parsedResponse.main.temp;
+        var condMainAnswer = parsedResponse.weather[0].main;
+        var condSubAnswer = parsedResponse.weather[0].description;
+        document.getElementById("temp").innerHTML = tempAnswer;
+        document.getElementById("condMain").innerHTML = condMainAnswer;
+        document.getElementById("condSub").innerHTML = condSubAnswer;
+        }
+    };
+    xhttpTemp.open("GET", "https://api.openweathermap.org/data/2.5/weather?id=4843564&units=imperial&appid=KEYHERE", true);
+    xhttpTemp.send();
+    
+    // For Tomorrow's Temperature
+    var xhttpTempTomorrow = new XMLHttpRequest();
+    xhttpTempTomorrow.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+        // Typical action to be performed when the document is ready:
+        var response = xhttpTempTomorrow.responseText;
+        //console.log(response);
+        var parsedResponse = JSON.parse(response);
+        //console.log(parsedResponse);
+        var tempAnswer = parsedResponse.list[5].main.temp;
+        var condMainAnswer = parsedResponse.list[5].weather[0].main;
+        var condSubAnswer = parsedResponse.list[5].weather[0].description;
+        document.getElementById("tempTomorrow").innerHTML = tempAnswer;
+        document.getElementById("condMainTomorrow").innerHTML = condMainAnswer;
+        document.getElementById("condSubTomorrow").innerHTML = condSubAnswer;
+        }
+    };
+    xhttpTempTomorrow.open("GET", "https://api.openweathermap.org/data/2.5/forecast?id=4843564&units=imperial&appid=KEYHERE", true);
+    xhttpTempTomorrow.send();
+
+    // Display everything
+    document.getElementById("time").innerHTML = moment().utcOffset('-0400').format('MMMM Do YYYY, h:mm:ss a');
+    document.getElementById("hour").innerHTML = moment().utcOffset('-0400').format('HH:mm');
+    document.getElementById("mon-day").innerHTML = moment().utcOffset('-0400').format('MMM D');
+
+
+    var xhttpClickUp = new XMLHttpRequest();
+    var clickUpResponse;
+    xhttpClickUp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // Typical action to be performed when the document is ready:
+            var response = xhttpClickUp.responseText;
+            console.log(response);
+            var parsedResponse = JSON.parse(response);
+            console.log(parsedResponse);
+            clickUpResponse = parsedResponse["tasks"];
+            console.log("clickUpResponse", clickUpResponse);
+            var i, taskDates = [];
+            for (i = 0; i < clickUpResponse.length; i++) {
+                //console.log(i, clickUpResponse[i]);
+                //console.log("clickUpResponse[i].due_date", clickUpResponse[i].due_date);
+                taskDate = clickUpResponse[i].due_date;
+                //console.log("taskDate", taskDate);
+                //taskDate = moment(taskDate, "x").format("YYYY/MM/DD");
+                //console.log("taskDate", taskDate);
+                if (!taskDates[taskDate]) {
+                    //taskDates[taskDate] = [];
+                    taskDates.push(taskDate);
+                };
+                //taskDates[taskDate].push(i);
+                clickUpResponse[i].readableDate = moment(clickUpResponse[i].due_date, "x").format("YYYY/MM/DD");
+                //console.log("taskDates", taskDates);
+            }
+            console.log("taskDates", taskDates);
+            /*
+            var sortedtaskDates = taskDates.sort((a, b) => a.valueOf() - b.valueOf());
+            //var sortedtaskDates = taskDates.sort((a,b) => moment(a).format('YYYY/MM/DD') - moment(b).format('YYYY/MM/DD'))
+            console.log("sortedtaskDates", sortedtaskDates);
+            */
+            var taskmap = [];
+            /*
+            for (i = 0; i < sortedtaskDates.length; i++) {
+                var readableDate = moment(sortedtaskDates[i], "x").format("YYYY/MM/DD");
+                console.log("readableDate", readableDate);
+                taskmap[readableDate] = [];
+            }
+            */
+            for (i = 0; i < taskDates.length; i++) {
+                var readableDate = moment(taskDates[i], "x").format("YYYY/MM/DD");
+                console.log("readableDate", readableDate);
+                taskmap[readableDate] = [];
+            }
+            console.log("clickUpResponse", clickUpResponse);
+            console.log("taskmap", taskmap);
+            for (i = 0; i < clickUpResponse.length; i++) {
+                var item = clickUpResponse[i];
+                var taskDate = item.readableDate;
+                // Adding an object because otherwise it's hard to loop through and add the custom field
+                taskmap[taskDate][item.id] = {};
+                //console.log(item.priority);
+                taskmap[taskDate][item.id] = {
+                    id: item.id,
+                    name: item.name,
+                    description: item.description,
+                    status: item.status.status,
+                    dueDate: item.readableDate,
+                    startDate: (item.start_date ? moment(item.start_date, "x").format("YYYY/MM/DD") : ""),
+                    /*
+                    tiddler: (item.custom_fields[0].value) ? item.custom_fields[0].value : "",
+                    link: (item.custom_fields[1].value) ? item.custom_fields[1].value : "",
+                    time: (item.custom_fields[8].value) ? item.custom_fields[8].value : "",
+                    pocket: (item.custom_fields[11].value) ? item.custom_fields[11].value : "",
+                    alfred: (item.custom_fields[14].value) ? item.custom_fields[14].value : "",
+                    */
+                    tiddler: "",
+                    link: "",
+                    time: "",
+                    pocket: "",
+                    alfred: "",
+                    tags: [],
+                    priority: (item.priority ? item.priority.priority : "None"),
+                    list: item.list.name,
+                    listId: item.list.id,
+                    folder: item.folder.name,
+                    folderId: item.folder.id
+                };
+                var currentObj = taskmap[taskDate][item.id];
+                item.custom_fields.forEach(function(field){
+                    /*
+                    console.log("field", field);
+                    console.log("field.name", field.name);
+                    console.log("field.value", field.value);
+                    console.log("taskmap[taskDate]",taskmap[taskDate]);
+                    console.log("taskmap[taskDate][item.id]",taskmap[taskDate][item.id]);
+                    console.log("currentObj", currentObj);
+                    */
+                    if (field.value) {
+                        //console.log("value exists");
+                        switch (field.name) {
+                            case "Tiddler":
+                                currentObj.tiddler = field.value;
+                                break;
+                            case "Relevant Link":
+                                currentObj.link = field.value;
+                                break;
+                            case "Alfred Query":
+                                currentObj.alfred = field.value;
+                                break;
+                            case "Approx Time":
+                                currentObj.time = field.value;
+                                break;
+                            case "Pocket Tag":
+                                currentObj.pocket = field.value;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+                item.tags.forEach(function(tag){
+                    currentObj.tags.push(tag.name);
+                });
+            }
+            console.log("taskmap", taskmap);
+            today = moment().utcOffset('-0400').format('YYYY/MM/DD');
+            console.log("today", today);
+            console.log("taskmap[today]", taskmap[today]);
+            var taskDiv = document.getElementById("task-list");
+            console.log("taskDiv", taskDiv);
+            var taskDatesToday = taskmap[today];
+            for (taskId in taskDatesToday){
+                //console.log("task", task);
+                console.log(taskDatesToday[taskId]);
+                var task = taskDatesToday[taskId];
+                console.log(task.name);
+                var taskNameNode = document.createElement("p");
+                //var taskNameContent = document.createTextNode(task.name + ", "); 
+                taskNameNode.innerHTML = task.name + " || (<a href='https://app.clickup.com/t/" + taskId + "' target='_blank'>more</a>)";
+                //console.log(title);
+                taskDiv.appendChild(taskNameNode);
+                //taskNameNode.appendChild(taskNameContent);
+            };
+        }
+    };
+    xhttpClickUp.open("GET", "https://cors-anywhere.herokuapp.com/https://api.clickup.com/api/v2/team/1286597/task?due_date_gt=1587283200&order_by=due_date&reverse=true", true);
+    xhttpClickUp.setRequestHeader("authorization", "KEYHERE");
+    xhttpClickUp.send();
+    console.log("clickUpResponse", clickUpResponse);
+
+    /*
+    var httpRequest = new XMLHttpRequest()
+    httpRequest.onreadystatechange = function (data) {
+        var testNode = document.getElementById('test');
+        console.log(data);
+        testNode.innerHTML = data[0].name;
+    }
+    httpRequest.open('GET', 'https://swapi.co/api/vehicles/4/')
+    httpRequest.send()
+    */
+</script>
+</html>
