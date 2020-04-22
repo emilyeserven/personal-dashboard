@@ -4,6 +4,8 @@ import { CLICKUP_KEY } from '../keys.js';
 
 class Tasks {
     clickUpCache = [];
+    panelNode;
+    parId;
     //clickUpDatebinned = [];
     clickUpFormatted = [];
     priorityBins = [];
@@ -13,7 +15,53 @@ class Tasks {
     DOMReady = false;
     buttonsReady = false;
     tasksLoaded = false;
+    parContainer;
+    panelType = "Tasks";
+    constructor(container) {
+        console.log("constructor");
+        //console.log("container", container);
+        this.parContainer = container;
+        this.parId = container.panelCount;
+        this.panelNode = put(container.containerNode, "div#task-list");
+        //console.log("this.panelNode", this.panelNode);
+        this.createPanel();
+    }
+    createPanel() {
+        var self = this;
+        console.log("createPanel");
+        //console.log("self", self);
+        //console.log("self.parContainer.containerTopic", self.parContainer.containerTopic);
+        var testMessage = "test Message!";
+        var containerTopic = self.parContainer.containerTopicName;
+
+       var topicData = {
+           "isPanelAdd": true, //prep for when these are removable
+           "type": self.panelType,
+           "node": self.panelNode,
+           "parId": self.parId
+       };
+       pubsub.publish(containerTopic, [topicData]);
+        
+        this.setCache();
+    }
+    removePanel() {
+        console.log("removePanel");
+        console.log("this", this);
+        var self = this;
+        var containerTopic = self.parContainer.containerTopicName;
+        self.parContainer.containerNode.removeChild(self.panelNode);
+        var topicData = {
+            "isPanelAdd": false, //prep for when these are removable
+            "panelName": self.panelType + "-" + self.parId
+        };
+        pubsub.publish(containerTopic, [topicData]);
+
+    }
     setCache() {
+        console.log("setCache");
+        //console.log("this, setCache", this);
+        //console.log("parContainer", this.parContainer);
+        //console.log("parContainer", this.parContainer.panelCount);
         var self = this;
         var xhttpClickUp = new XMLHttpRequest();
         var clickUpResponse;
@@ -21,11 +69,11 @@ class Tasks {
             if (this.readyState == 4 && this.status == 200) {
                 // Typical action to be performed when the document is ready:
                 var response = xhttpClickUp.responseText;
-                console.log(response);
+                //console.log(response);
                 var parsedResponse = JSON.parse(response);
-                console.log(parsedResponse);
+                //console.log(parsedResponse);
                 clickUpResponse = parsedResponse["tasks"];
-                console.log("clickUpResponse", clickUpResponse);
+                //console.log("clickUpResponse", clickUpResponse);
                 self.clickUpCache = clickUpResponse;
                 self.formatCache();
             }
@@ -35,18 +83,20 @@ class Tasks {
         // Dynamically build endpoint so that we start one week prior. Just in case things are.... severely overdue.
         var minDay = moment().subtract(7, 'days').format("x");
         xhttpClickUp.open("GET", "https://cors-anywhere.herokuapp.com/https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
+        //xhttpClickUp.open("GET", "https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
         xhttpClickUp.setRequestHeader("authorization", CLICKUP_KEY);
         xhttpClickUp.send();
     }
     formatCache() {
+        console.log("formatCache");
         var self = this;
         var rawData = self.clickUpCache;
         var i, taskDates = [];
         
         var taskmap = [], priorityBin = {}, atBins = {};
 
-        console.log("rawData", rawData);
-        console.log("taskmap", taskmap);
+        //console.log("rawData", rawData);
+        //console.log("taskmap", taskmap);
 
         // Create the default "no priority" bin.
         priorityBin["5"] = {
@@ -67,7 +117,7 @@ class Tasks {
         customFields.forEach(function(field){
             //console.log("field", field);
             if (field.name == "Approx Time") {
-                console.log("Yes!");
+                //console.log("Yes!");
                 var opts = field.type_config.options;
                 for (var opt in opts) {
                     var item = opts[opt];
@@ -167,6 +217,7 @@ class Tasks {
         self.createBins();
     }
     createBins() {
+        console.log("CreateBins");
         var self = this;
         var forData = self.clickUpFormatted;
         //var dBin = self.dateBins, 
@@ -189,31 +240,22 @@ class Tasks {
         // We're checking each task in our formatted data array. Only the item ID gets referenced.
         // When the bins are checked and used to make DOM changes, 
 
-        console.log("dBin", dBin);
-        console.log("atBin", atBin);
+        //console.log("dBin", dBin);
+        //console.log("atBin", atBin);
         for (var task in forData) {
             var item = forData[task];
             // First, push to 
-            console.log("item", item);
+            //console.log("item", item);
             if (!dBin[item.dueDate]) dBin[item.dueDate] = [];
             dBin[item.dueDate].push(item.id);
             atBin[item.time].tasks.push(item.id);
-            /*if (!pBin[item.priority]) {
-                priorityBin[item.priority.id] = {
-                    name: item.priority.priority,
-                    color: item.priority.color,
-                    tasks: [],
-                    id: item.priority.id
-                };
-                pBin[item.priority].tasks.push(item.id);
-            } else {*/
-                pBin[item.priority].tasks.push(item.id);
-            //}
+            pBin[item.priority].tasks.push(item.id);
         }
         self.dateBins = dBin, self.priorityBins = pBin, self.DOMReady = true, self.approxTimeBins = atBin;
         self.wireButtons();
     }
     wireButtons() {
+        console.log("wireButtons");
         // This probably shouldn't be here.
         // Probably need to make a new file that references this one and some kind of update method.
         // Probably should make these out of constructors or something. 
@@ -229,12 +271,12 @@ class Tasks {
         buttonTomorrow.addEventListener("click", function() {
             self.tasks("tomorrow")
         }, false);
-        console.log("buttonTomorrow");
+        //console.log("buttonTomorrow");
         self.ButtonsReady = true;
         self.tasks(self.taskDay);
     }
     tasks(day) {
-        console.log("tasks");
+        console.log("tasks(day)");
         var self = this;
         var setDay;
 
@@ -266,7 +308,7 @@ class Tasks {
             console.log("HEY, we don't have any data!!");
             self.setCache();
         } else {
-            var taskList = document.querySelector("#task-list");
+            var taskList = self.panelNode;
 
             // If the task list has already been loaded, then delete old nodes.
             // Ideally this should be done in some kind of update method.
@@ -285,12 +327,12 @@ class Tasks {
             
             // We're looping through the datebin, but actually using info from self.clickUpFormatted.
             // The key is the id!
-            console.log("dBins", dBins);
-            console.log("self.taskDay", self.taskDay);
+            //console.log("dBins", dBins);
+            //console.log("self.taskDay", self.taskDay);
             self.currentTasks = [];
             dBins[self.taskDay].forEach(function(id){
                 var task = panelData[id];
-                console.log(task);
+                //console.log(task);
                 self.currentTasks.push(id);
                 // Now a list item is created.
                 //var taskNameNodeContent = task.name + " || (<a href='https://app.clickup.com/t/" + id + "' target='_blank'>more</a>)";
@@ -304,13 +346,9 @@ class Tasks {
                 var taskNode = put(taskList, "div.task-item");
                 taskNode.id = "task-" + task.id;
                     var taskPriority = put(taskNode, "div.task-priority", {
-                        innerHTML: pBins[task.priority].name
+                        //innerHTML: pBins[task.priority].name
                     });
                     taskPriority.style.backgroundColor = pBins[task.priority].color;
-                    var taskApproxTime = put(taskNode, "div.task-approx-time", {
-                        innerHTML: task.time
-                    });
-                    taskApproxTime.style.backgroundColor = atBins[task.time].color
                     var taskContent = put(taskNode, "div.task-content");
                         var taskTitle = put(taskContent, "h3.task-title", {
                             innerHTML: task.name
@@ -328,12 +366,16 @@ class Tasks {
                             innerHTML: "<a href='https://app.getpocket.com/tags/" + task.pocket + "/all' target='_blank'>" + task.pocket + "</a>"
                         });
                     var taskDue = put(taskNode, "div.task-due", {
-                        innerHTML: task.dueDate
+                        innerHTML: moment(task.dueDate, "YYYY/MM/DD").format("MM/DD")
                     });
+                    var taskApproxTime = put(taskNode, "div.task-approx-time", {
+                        innerHTML: task.time
+                    });
+                    taskApproxTime.style.backgroundColor = atBins[task.time].color;
             });
+            self.tasksLoaded = true;
+            //self.checkCache();
         }
-        self.tasksLoaded = true;
-        self.checkCache();
     }
     checkCache() {
         console.log("Cache: ", this.clickUpCache);

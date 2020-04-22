@@ -7,6 +7,9 @@
     <META HTTP-EQUIV="refresh" CONTENT="300">
     <title>Document</title>
     <style>
+        html {
+            font-family: Arial, Helvetica, sans-serif;
+        }
         .weather-table {
             width: 100%;
             border-top:10px #fff solid;
@@ -69,21 +72,28 @@
             flex-wrap: nowrap;
             vertical-align: middle;
             width: 50%;
+            margin-bottom:8px;
         }
         .task-content {
             display:inline-flex;
             flex-direction: column;
             flex-basis: 75%;
+            padding: 4px 8px;
         }
         .task-content p, .task-content h3 {
             margin: 0;
         }
         .task-priority {
-            flex-basis: 5%;
+            flex-basis: 2%;
+            /*margin-right: 4px;*/
         }
         .task-approx-time, .task-due {
-            flex-basis: 10%;
+            flex-basis: 12.5%;
+            display: inline-flex;
             background-color: #333;
+            color: #eee;
+            align-items: center;
+            justify-content: center;
         }
         
     </style>
@@ -91,6 +101,7 @@
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
     <script src="js/put.js"></script>
+    <script src="js/pubsub.js"></script>
     <script type="module" src="js/app.js"></script>
     <div class="time-block">
         <div class="time-hour">
@@ -135,13 +146,13 @@
     </div>
     <!-- <ul id="task-list"></ul> -->
     <div id="task-list"></div>
+    <div id="app"></div>
     
     <h1>Tomorrow's Task List</h1>
     <ul id="task-list-tomorrow"></ul>
     <div class="task-container">
         <div class="task-item">
             <div class="task-priority">Prior</div>
-            <div class="task-approx-time">Time</div>
             <div class="task-content">
                 <h3 class="task-title">Title</h3>
                 <p class="task-description">Desc.</p>
@@ -150,6 +161,7 @@
                 <p class="task-pocket-tag">Pocket Tag</p>
             </div>
             <div class="task-due">MM / DD</div>
+            <div class="task-approx-time">Time</div>
         </div>
     </div>
     <p>Testing: <span id="test">???</span></p>
