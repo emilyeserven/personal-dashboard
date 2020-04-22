@@ -6,7 +6,9 @@ import {Container} from './container.js';
 test();
 weather();
 let panelContainer = new Container("#app", 0);
-panelContainer.init();
 let taskList = new Tasks(panelContainer);
-let taskList2 = new Tasks(panelContainer);
-taskList2.removePanel();
+
+ 
+// Uncomment this to check out the panel removal func.
+//let taskList2 = new Tasks(panelContainer);
+//taskList2.removePanel();

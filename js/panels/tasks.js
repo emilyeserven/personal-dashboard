@@ -1,6 +1,23 @@
 import { CLICKUP_KEY } from '../keys.js';
 
-// TODO: Figure out how to have multiple instances of Tasks panel.
+// DONE (4/21): Figure out how to have multiple instances of Tasks panel.
+// TODO: Add in rows and other (better) layout functionality.
+// TODO: Add ability to initialize this panel with various endpoint parameters so multiple instances actually make sense.
+// TODO: Clean up var declarations. Look into the merits of let?
+// TODO: Differentiate all the constants and data we get from the container!!
+      
+// TODO: When data refreshing is a thing, this (createBins) should be updated to check if items should be moved around or not.
+/* 
+*  Something like...
+*  1. Check if ID is in same place as before. 
+*  2. If not, check other bins. If it's found, delete from old bin. (Also, add an item to a "Revised" array/object to keep track of changes.)
+*  3. If not found in others, delete it.
+*  
+*  No clue if simply resetting the entire bin is easier. Just jotting down just in case. May or may not cause more DOM rewrites. Dunno yet.
+*/
+
+
+// Consider making the contaimer panelList topic a class property.
 
 class Tasks {
     clickUpCache = [];
@@ -19,37 +36,40 @@ class Tasks {
     panelType = "Tasks";
     constructor(container) {
         console.log("constructor");
-        //console.log("container", container);
         this.parContainer = container;
         this.parId = container.panelCount;
-        this.panelNode = put(container.containerNode, "div#task-list");
-        //console.log("this.panelNode", this.panelNode);
+        this.panelNode = put(container.containerNode, "div#task-list-" + this.parId + ".task-list");
         this.createPanel();
     }
     createPanel() {
         var self = this;
         console.log("createPanel");
-        //console.log("self", self);
-        //console.log("self.parContainer.containerTopic", self.parContainer.containerTopic);
-        var testMessage = "test Message!";
         var containerTopic = self.parContainer.containerTopicName;
 
-       var topicData = {
-           "isPanelAdd": true, //prep for when these are removable
-           "type": self.panelType,
-           "node": self.panelNode,
-           "parId": self.parId
-       };
-       pubsub.publish(containerTopic, [topicData]);
+        // Object to be sent to the Container.
+        var topicData = {
+            "isPanelAdd": true, //prep for when these are removable
+            "type": self.panelType,
+            "node": self.panelNode,
+            "parId": self.parId
+        };
+
+        pubsub.publish(containerTopic, [topicData]);
         
         this.setCache();
     }
     removePanel() {
+        // This removes the panel from the DOM but also from the container's panelList.
         console.log("removePanel");
         console.log("this", this);
         var self = this;
         var containerTopic = self.parContainer.containerTopicName;
+
+        // Remove the DOM element and all its children. BOOM!
         self.parContainer.containerNode.removeChild(self.panelNode);
+
+        // Object to be sent to the Container. Because this is a removal, all we need to send is that flag (isPanelAdd: false)
+        // and the panelName that we can remove from the main list.
         var topicData = {
             "isPanelAdd": false, //prep for when these are removable
             "panelName": self.panelType + "-" + self.parId
@@ -58,22 +78,19 @@ class Tasks {
 
     }
     setCache() {
+        // The third-party API request is made here.
+
         console.log("setCache");
-        //console.log("this, setCache", this);
-        //console.log("parContainer", this.parContainer);
-        //console.log("parContainer", this.parContainer.panelCount);
         var self = this;
         var xhttpClickUp = new XMLHttpRequest();
         var clickUpResponse;
+
+        // Order here is misleading, the stuff below the onreadystatechange actually gets read out and executed first.
         xhttpClickUp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                // Typical action to be performed when the document is ready:
                 var response = xhttpClickUp.responseText;
-                //console.log(response);
                 var parsedResponse = JSON.parse(response);
-                //console.log(parsedResponse);
                 clickUpResponse = parsedResponse["tasks"];
-                //console.log("clickUpResponse", clickUpResponse);
                 self.clickUpCache = clickUpResponse;
                 self.formatCache();
             }
@@ -81,22 +98,27 @@ class Tasks {
         };
 
         // Dynamically build endpoint so that we start one week prior. Just in case things are.... severely overdue.
+        // This value should be a class-property thing and the below should be the default if it's not defined.
         var minDay = moment().subtract(7, 'days').format("x");
+
+        // CORS is necessary but profoundly annoying, so I'm using this proxy for now.
         xhttpClickUp.open("GET", "https://cors-anywhere.herokuapp.com/https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
+        
+        // Uncomment this if CORS gets solved or some CORS anywhere extension hack-solution is being used.
         //xhttpClickUp.open("GET", "https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
+        
+        // Key is in another castle, uh I mean file. In case git repo goes public.
         xhttpClickUp.setRequestHeader("authorization", CLICKUP_KEY);
         xhttpClickUp.send();
     }
     formatCache() {
+        // This is where the data gets turned into something usable.
         console.log("formatCache");
         var self = this;
         var rawData = self.clickUpCache;
         var i, taskDates = [];
         
         var taskmap = [], priorityBin = {}, atBins = {};
-
-        //console.log("rawData", rawData);
-        //console.log("taskmap", taskmap);
 
         // Create the default "no priority" bin.
         priorityBin["5"] = {
@@ -106,6 +128,7 @@ class Tasks {
             id: "" + 5
         };
 
+        // ... and the default "Approx Time" bin.
         atBins["0"] = {
             name: "none",
             color: "#333",
@@ -206,7 +229,8 @@ class Tasks {
             });
         }
         //console.log("dateBin", dateBin);
-        // "Cache" the bins and formatted data.
+
+        // Officially set the bins and formatted data.
         self.priorityBins = priorityBin;
         //self.dateBins = dateBin;
         self.approxTimeBins = atBins;
@@ -219,20 +243,13 @@ class Tasks {
     createBins() {
         console.log("CreateBins");
         var self = this;
+
+        // Make copies of the class properties so stuff doesn't change on us before we're ready. (By value vs by reference.)
         var forData = self.clickUpFormatted;
         //var dBin = self.dateBins, 
         var pBin = self.priorityBins;
         var atBin = self.approxTimeBins;
         var dBin = [];//, pBin = {};
-        // TODO: When data refreshing is a thing, this should be updated to check if items should be moved around or not.
-        /* 
-        *  Something like...
-        *  1. Check if ID is in same place as before. 
-        *  2. If not, check other bins. If it's found, delete from old bin. (Also, add an item to a "Revised" array/object to keep track of changes.)
-        *  3. If not found in others, delete it.
-        *  
-        *  No clue if simply resetting the entire bin is easier. Just jotting down just in case. May or may not cause more DOM rewrites. Dunno yet.
-        */
 
         // Taking the opportunity to create datebins and priority bins here.
         // If an entry does not exist, it's added. Otherwise, it's left alone.
@@ -378,6 +395,7 @@ class Tasks {
         }
     }
     checkCache() {
+        // General purpose debugging.
         console.log("Cache: ", this.clickUpCache);
         console.log("Formatted: ", this.clickUpFormatted);
         console.log("dBins: ", this.dateBins);
