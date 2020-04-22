@@ -1,10 +1,12 @@
 import { CLICKUP_KEY } from '../keys.js';
 
 // DONE (4/21): Figure out how to have multiple instances of Tasks panel.
+// TODO: Add buttons dynamically with put, add in a create and remove panel button.
 // TODO: Add in rows and other (better) layout functionality.
 // TODO: Add ability to initialize this panel with various endpoint parameters so multiple instances actually make sense.
 // TODO: Clean up var declarations. Look into the merits of let?
 // TODO: Differentiate all the constants and data we get from the container!!
+// TODO: Look into some sort of Panel class that this can extend. For things like createPanel() and removePanel().
       
 // TODO: When data refreshing is a thing, this (createBins) should be updated to check if items should be moved around or not.
 /* 
@@ -75,7 +77,6 @@ class Tasks {
             "panelName": self.panelType + "-" + self.parId
         };
         pubsub.publish(containerTopic, [topicData]);
-
     }
     setCache() {
         // The third-party API request is made here.

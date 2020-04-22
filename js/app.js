@@ -1,11 +1,12 @@
 import {test} from './panels/test.js';
-import {weather} from './panels/weather.js';
+import {Weather} from './panels/weather.js';
 import {Tasks} from './panels/tasks.js';
 import {Container} from './container.js';
 
 test();
-weather();
 let panelContainer = new Container("#app", 0);
+let weatherToday = new Weather(panelContainer, "today");
+let weatherTomorrow = new Weather(panelContainer, "tomorrow");
 let taskList = new Tasks(panelContainer);
 
  

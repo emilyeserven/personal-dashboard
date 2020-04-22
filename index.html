@@ -68,6 +68,14 @@
         .container {
             display:flex;
             flex-direction: row;
+            flex-wrap: wrap;
+        }
+        
+        .weather {
+            flex-basis: 49%;
+            margin-right: 1%;
+            display:flex;
+            flex-direction: column;
         }
         .task-list {
             flex-basis: 49%;
@@ -112,68 +120,48 @@
     <script src="js/put.js"></script>
     <script src="js/pubsub.js"></script>
     <script type="module" src="js/app.js"></script>
+    <!--
     <div class="time-block">
         <div class="time-hour">
-            <h3 id="hour">HOUR</h3> <!-- TODO: Make this actually change so a refresh isn't needed. Add "Last Refresh" to page bottom. -->
+            <h3 id="hour">HOUR</h3> <!-- TODO: Make this actually change so a refresh isn't needed. Add "Last Refresh" to page bottom.
             <p style="margin-bottom: 0;">(Sort of.)</p>
         </div>
         <div class="time-date">
             <h3 id="mon-day">MONTH/DAY</h3>
         </div>
     </div>
-    <table class="weather-table">
-        <tr>
-            <th colspan="2"><h1>Weather</h1></th>
-        </tr>
-        <tr>
-            <td>
-                <h2>Stamford</h2>
-                <h3>Today</h3>
-                <p><span id="temp">??</span><sup>o</sup>F</p>
-                <p><b><span id="condMain">??</span></b>, <span id="condSub">??</span></p>
-            </td>
-            <td>
-                <h3>Tomorrow</h3>
-                <p><span id="tempTomorrow">??</span><sup>o</sup>F</p>
-                <p><b><span id="condMainTomorrow">??</span></b>, <span id="condSubTomorrow">??</span></p>
-            </td>
-            <!--
-            <td>
-                <h2>New York</h2>
-                <p>Smelly</p>
-            </td>
-            -->
-        </tr>
-    </table>
-    
-    <h1>Task List</h1>
+-->
     <div>
-        <ul>
-            <li><button id="buttonToday">Today</button></li>
-            <li><button id="buttonTomorrow">Tomorrow</button></li>
-        </ul>
-    </div>
-    <!-- <ul id="task-list"></ul> -->
-    <div id="task-list"></div>
-    <div id="app"></div>
-    
-    <h1>Tomorrow's Task List</h1>
-    <ul id="task-list-tomorrow"></ul>
-    <div class="task-container">
-        <div class="task-item">
-            <div class="task-priority">Prior</div>
-            <div class="task-content">
-                <h3 class="task-title">Title</h3>
-                <p class="task-description">Desc.</p>
-                <p class="task-location">Space > Folder > List</p>
-                <p class="task-tags">Tag, Tag</p>
-                <p class="task-pocket-tag">Pocket Tag</p>
-            </div>
-            <div class="task-due">MM / DD</div>
-            <div class="task-approx-time">Time</div>
+        <br />
+        <h1>Task List</h1>
+        <div>
+            <ul>
+                <li><button id="buttonToday">Today</button></li>
+                <li><button id="buttonTomorrow">Tomorrow</button></li>
+            </ul>
         </div>
+        <!-- <ul id="task-list"></ul> -->
+        <div id="task-list"></div>
+        <div id="app"></div>
+        
+        <h1>Tomorrow's Task List</h1>
+        <ul id="task-list-tomorrow"></ul>
+        <div class="task-container">
+            <div class="task-item">
+                <div class="task-priority">Prior</div>
+                <div class="task-content">
+                    <h3 class="task-title">Title</h3>
+                    <p class="task-description">Desc.</p>
+                    <p class="task-location">Space > Folder > List</p>
+                    <p class="task-tags">Tag, Tag</p>
+                    <p class="task-pocket-tag">Pocket Tag</p>
+                </div>
+                <div class="task-due">MM / DD</div>
+                <div class="task-approx-time">Time</div>
+            </div>
+        </div>
+        <p>Testing: <span id="test">???</span></p>
+        <p>Time: <span id="time">???</span></p>
     </div>
-    <p>Testing: <span id="test">???</span></p>
-    <p>Time: <span id="time">???</span></p>
 </body>
 </html>
