@@ -1,3 +1,4 @@
+import {Panel} from '../Panel.js';
 import { CLICKUP_KEY } from '../keys.js';
 
 // DONE (4/21): Figure out how to have multiple instances of Tasks panel.
@@ -21,67 +22,30 @@ import { CLICKUP_KEY } from '../keys.js';
 
 // Consider making the contaimer panelList topic a class property.
 
-class Tasks {
+class Tasks extends Panel {
     clickUpCache = [];
-    panelNode;
-    parId;
     //clickUpDatebinned = [];
     clickUpFormatted = [];
     priorityBins = [];
     dateBins = [];
     approxTimeBins = [];
     currentTasks = [];
-    DOMReady = false;
     buttonsReady = false;
     tasksLoaded = false;
-    parContainer;
     panelType = "Tasks";
     constructor(container) {
+        super();
         console.log("constructor");
         this.parContainer = container;
         this.parId = container.panelCount;
         this.panelNode = put(container.containerNode, "div#task-list-" + this.parId + ".task-list");
         this.createPanel();
     }
-    createPanel() {
-        var self = this;
-        console.log("createPanel");
-        var containerTopic = self.parContainer.containerTopicName;
-
-        // Object to be sent to the Container.
-        var topicData = {
-            "isPanelAdd": true, //prep for when these are removable
-            "type": self.panelType,
-            "node": self.panelNode,
-            "parId": self.parId
-        };
-
-        pubsub.publish(containerTopic, [topicData]);
-        
-        this.setCache();
-    }
-    removePanel() {
-        // This removes the panel from the DOM but also from the container's panelList.
-        console.log("removePanel");
-        console.log("this", this);
-        var self = this;
-        var containerTopic = self.parContainer.containerTopicName;
-
-        // Remove the DOM element and all its children. BOOM!
-        self.parContainer.containerNode.removeChild(self.panelNode);
-
-        // Object to be sent to the Container. Because this is a removal, all we need to send is that flag (isPanelAdd: false)
-        // and the panelName that we can remove from the main list.
-        var topicData = {
-            "isPanelAdd": false, //prep for when these are removable
-            "panelName": self.panelType + "-" + self.parId
-        };
-        pubsub.publish(containerTopic, [topicData]);
-    }
     setCache() {
         // The third-party API request is made here.
 
         console.log("setCache");
+        console.log("this", this);
         var self = this;
         var xhttpClickUp = new XMLHttpRequest();
         var clickUpResponse;
@@ -103,10 +67,10 @@ class Tasks {
         var minDay = moment().subtract(7, 'days').format("x");
 
         // CORS is necessary but profoundly annoying, so I'm using this proxy for now.
-        xhttpClickUp.open("GET", "https://cors-anywhere.herokuapp.com/https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
+        //xhttpClickUp.open("GET", "https://cors-anywhere.herokuapp.com/https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
         
         // Uncomment this if CORS gets solved or some CORS anywhere extension hack-solution is being used.
-        //xhttpClickUp.open("GET", "https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
+        xhttpClickUp.open("GET", "https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
         
         // Key is in another castle, uh I mean file. In case git repo goes public.
         xhttpClickUp.setRequestHeader("authorization", CLICKUP_KEY);
