@@ -1,7 +1,7 @@
-import {test} from './panels/test.js';
-import {Weather} from './panels/weather.js';
-import {Tasks} from './panels/tasks.js';
-import {Container} from './container.js';
+import {test} from './panels/Test.js';
+import {Weather} from './panels/Weather.js';
+import {Tasks} from './panels/Tasks.js';
+import {Container} from './Container.js';
 
 test();
 let panelContainer = new Container("#app", 0);
