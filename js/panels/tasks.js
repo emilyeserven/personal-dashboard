@@ -67,10 +67,10 @@ class Tasks extends Panel {
         var minDay = moment().subtract(7, 'days').format("x");
 
         // CORS is necessary but profoundly annoying, so I'm using this proxy for now.
-        //xhttpClickUp.open("GET", "https://cors-anywhere.herokuapp.com/https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
+        xhttpClickUp.open("GET", "https://cors-anywhere.herokuapp.com/https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
         
         // Uncomment this if CORS gets solved or some CORS anywhere extension hack-solution is being used.
-        xhttpClickUp.open("GET", "https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
+        //xhttpClickUp.open("GET", "https://api.clickup.com/api/v2/team/1286597/task?due_date_gt="+ minDay +"&order_by=due_date&reverse=true", true);
         
         // Key is in another castle, uh I mean file. In case git repo goes public.
         xhttpClickUp.setRequestHeader("authorization", CLICKUP_KEY);
