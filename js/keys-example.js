@@ -1,0 +1,4 @@
+var CLICKUP_KEY = "KEY HERE";
+var WEATHER_KEY = "KEY HERE";
+
+export {CLICKUP_KEY, WEATHER_KEY};
